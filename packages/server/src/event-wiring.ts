@@ -316,11 +316,17 @@ export function wireEvents(deps: EventWiringDeps): void {
         return;
       }
       const seq = eventStore.insertEvent(sessionId, msg.event);
-      // Real-time intercept hook: fires once per persisted event, after the
-      // store write and before broadcast. See change: add-on-event-persisted-hook.
-      onEventPersisted?.(sessionId, msg.event);
+      const isReplay = replayingSessions.has(sessionId);
+      // Real-time intercept hook: fires once per LIVE persisted event, after the
+      // store write and before broadcast. It must NOT fire for the historical
+      // events replayed on session register / reconnect because a real-time
+      // consumer would otherwise republish old events as new on every reconnect.
+      // See change: add-on-event-persisted-hook.
+      if (!isReplay) {
+        onEventPersisted?.(sessionId, msg.event);
+      }
       // Skip broadcasting during replay — browser gets events via subscribe replay
-      if (!replayingSessions.has(sessionId)) {
+      if (!isReplay) {
         const storedEvent = eventStore.getEvent(sessionId, seq) ?? msg.event;
         browserGateway.broadcastEvent(sessionId, seq, storedEvent);
       }
