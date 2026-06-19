@@ -67,6 +67,8 @@ export interface ServerPluginContext {
   registerBrowserHandler: RegisterBrowserHandlerFn;
   /** Subscribe to all forwarded pi events. See change: add-goal-continuation-plugin. */
   onEvent: OnEventFn;
+  /** Register a callback that fires after every Pi session event is persisted. */
+  registerOnEventPersisted: (handler: (sessionId: string, event: unknown) => void) => void;
   /** Send a prompt/command into a running session. See change: add-goal-continuation-plugin. */
   sendToSession: SendToSessionFn;
   getPluginConfig<T = Record<string, unknown>>(): T;
@@ -83,6 +85,7 @@ export interface ServerContextDeps {
   registerPiHandler: RegisterPiHandlerFn;
   registerBrowserHandler: RegisterBrowserHandlerFn;
   onEvent: OnEventFn;
+  onEventPersisted: (handler: (sessionId: string, event: unknown) => void) => void;
   sendToSession: SendToSessionFn;
   getPluginConfig: (pluginId: string) => Record<string, unknown>;
   updatePluginConfig: (pluginId: string, partial: Record<string, unknown>) => Promise<void>;
@@ -105,6 +108,9 @@ export function createServerPluginContext(
     registerPiHandler: deps.registerPiHandler,
     registerBrowserHandler: deps.registerBrowserHandler,
     onEvent: deps.onEvent,
+    registerOnEventPersisted: (handler) => {
+      deps.onEventPersisted(handler);
+    },
     sendToSession: deps.sendToSession,
 
     getPluginConfig<T>(): T {

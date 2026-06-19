@@ -121,6 +121,12 @@ export interface EventWiringDeps {
    * See change: add-goal-continuation-plugin.
    */
   dispatchPluginRawEvent?: (sessionId: string, event: unknown) => void;
+  /**
+   * Optional real-time event sink. When provided, fires once per persisted
+   * live `event_forward` event, immediately after `eventStore.insertEvent(...)`.
+   * Replayed history must not hit this hook.
+   */
+  onEventPersisted?: (sessionId: string, event: unknown) => void;
 }
 
 /**
@@ -147,6 +153,7 @@ export function wireEvents(deps: EventWiringDeps): void {
     pendingClientCorrelations,
     dispatchPluginPiMessage,
     dispatchPluginRawEvent,
+    onEventPersisted,
   } = deps;
 
   /**
@@ -309,6 +316,9 @@ export function wireEvents(deps: EventWiringDeps): void {
         return;
       }
       const seq = eventStore.insertEvent(sessionId, msg.event);
+      // Real-time intercept hook: fires once per persisted event, after the
+      // store write and before broadcast. See change: add-on-event-persisted-hook.
+      onEventPersisted?.(sessionId, msg.event);
       // Skip broadcasting during replay — browser gets events via subscribe replay
       if (!replayingSessions.has(sessionId)) {
         const storedEvent = eventStore.getEvent(sessionId, seq) ?? msg.event;

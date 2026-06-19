@@ -590,6 +590,20 @@ export async function createServer(config: ServerConfig): Promise<DashboardServe
     }
   }
 
+  // Registry of plugin callbacks invoked after every persisted Pi event.
+  // Each handler is wrapped in try/catch so a faulty plugin cannot crash the
+  // server. See change: add-on-event-persisted-hook.
+  const eventPersistedHandlers: Array<(sessionId: string, event: unknown) => void> = [];
+  const onEventPersisted = (sessionId: string, event: unknown) => {
+    for (const handler of eventPersistedHandlers) {
+      try {
+        handler(sessionId, event);
+      } catch {
+        // plugin errors must not crash the server
+      }
+    }
+  };
+
   // Wire up event forwarding from pi gateway to browser gateway
   wireEvents({
     sessionManager,
@@ -610,6 +624,7 @@ export async function createServer(config: ServerConfig): Promise<DashboardServe
     pendingClientCorrelations,
     dispatchPluginPiMessage,
     dispatchPluginRawEvent,
+    onEventPersisted,
   });
 
   // Auto-shutdown idle timer
@@ -1217,6 +1232,7 @@ export async function createServer(config: ServerConfig): Promise<DashboardServe
                 browserGateway.registerHandler(type, (msg, ws) =>
                   handler(msg, ws as unknown),
                 ),
+              onEventPersisted: (handler) => eventPersistedHandlers.push(handler),
               getPluginConfig: (id) => {
                 const cfg = loadConfig();
                 return getPluginConfigFromFile(cfg, id);
