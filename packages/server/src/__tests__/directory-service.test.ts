@@ -37,7 +37,7 @@ vi.mock("../session-discovery.js", () => ({
 }));
 
 // Mock session-file-reader
-vi.mock("../session-file-reader.js", () => ({
+vi.mock("@blackbelt-technology/pi-dashboard-shared/session-file-reader.js", () => ({
   loadSessionEntries: vi.fn(() => []),
 }));
 
@@ -182,9 +182,9 @@ describe("DirectoryService", () => {
 
   describe("loadSessionEvents", () => {
     it("loads and converts session entries", async () => {
-      const { loadSessionEntries } = await import("../session-file-reader.js");
+      const { loadSessionEntries } = await import("@blackbelt-technology/pi-dashboard-shared/session-file-reader.js");
       const { replayEntriesAsEvents } = await import("@blackbelt-technology/pi-dashboard-shared/state-replay.js");
-      
+
       const mockEntries = [{ type: "message", message: { role: "user", content: "hi" } }];
       (loadSessionEntries as any).mockReturnValueOnce(mockEntries);
       (replayEntriesAsEvents as any).mockReturnValueOnce([
@@ -193,7 +193,7 @@ describe("DirectoryService", () => {
 
       const stateStore = createMockPreferencesStore();
       const sessionManager = createMockSessionManager();
-      service = createDirectoryService(stateStore, sessionManager);
+      service = createDirectoryService(stateStore, sessionManager, undefined, { useLoadWorker: false });
 
       const result = await service.loadSessionEvents("s1", "/path/to/session.jsonl");
       expect(result.success).toBe(true);
@@ -202,12 +202,12 @@ describe("DirectoryService", () => {
     });
 
     it("returns error on missing file", async () => {
-      const { loadSessionEntries } = await import("../session-file-reader.js");
+      const { loadSessionEntries } = await import("@blackbelt-technology/pi-dashboard-shared/session-file-reader.js");
       (loadSessionEntries as any).mockImplementationOnce(() => { throw Object.assign(new Error("not found"), { code: "ENOENT" }); });
 
       const stateStore = createMockPreferencesStore();
       const sessionManager = createMockSessionManager();
-      service = createDirectoryService(stateStore, sessionManager);
+      service = createDirectoryService(stateStore, sessionManager, undefined, { useLoadWorker: false });
 
       const result = await service.loadSessionEvents("s1", "/missing.jsonl");
       expect(result.success).toBe(false);

@@ -20,7 +20,7 @@
  * See change: offload-session-events-load-to-worker.
  */
 import { isMainThread, parentPort } from "node:worker_threads";
-import { loadSessionEntries } from "./session-file-reader.js";
+import { loadSessionEntries } from "@blackbelt-technology/pi-dashboard-shared/session-file-reader.js";
 import { replayEntriesAsEvents } from "@blackbelt-technology/pi-dashboard-shared/state-replay.js";
 
 export interface SessionLoadRequest {

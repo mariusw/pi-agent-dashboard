@@ -18,7 +18,7 @@ export interface SessionEntry {
 
 /**
  * Load entries from a JSONL session file.
- * Returns entries in branch order (leaf→root reversed) if tree structure is present,
+ * Returns entries in branch order (leaf->root reversed) if tree structure is present,
  * otherwise returns linear order (excluding the session header).
  */
 export function loadSessionEntries(filePath: string): SessionEntry[] {
