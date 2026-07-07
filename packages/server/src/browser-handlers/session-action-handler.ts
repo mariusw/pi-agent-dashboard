@@ -10,7 +10,7 @@ import { loadConfig } from "@blackbelt-technology/pi-dashboard-shared/config.js"
 import { preflightSpawn } from "../spawn-preflight.js";
 import { getSpawnRegisterWatchdog } from "../spawn-register-watchdog.js";
 import { appendSpawnFailure } from "../spawn-failure-log.js";
-import { createBranchedSessionFile } from "../session-file-reader.js";
+import { createBranchedSessionFile } from "@blackbelt-technology/pi-dashboard-shared/session-file-reader.js";
 import {
   killPidWithGroup,
   killProcess,

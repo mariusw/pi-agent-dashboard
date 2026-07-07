@@ -35,7 +35,7 @@ vi.mock("../session-discovery.js", () => ({
   discoverSessionsForCwd: vi.fn(() => []),
 }));
 
-vi.mock("../session-file-reader.js", () => ({
+vi.mock("@blackbelt-technology/pi-dashboard-shared/session-file-reader.js", () => ({
   loadSessionEntries: vi.fn(() => []),
 }));
 

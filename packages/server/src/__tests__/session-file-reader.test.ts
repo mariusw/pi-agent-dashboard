@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { createBranchedSessionFile } from "../session-file-reader.js";
+import { createBranchedSessionFile } from "@blackbelt-technology/pi-dashboard-shared/session-file-reader.js";
 
 describe("createBranchedSessionFile", () => {
   let tmpDir: string;
